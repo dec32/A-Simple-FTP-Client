@@ -14,12 +14,6 @@ public class Client {
 		
 	}
 	
-	public void start() {
-		login("localhost", 21, "10641", "2131415");
-		download("/", "saito asuka.jpg", "D:/ftp download");
-	}
-	
-
 	public void login(String ip, int port, String username, String password) {
 		
 		ftpClient = new FTPClient();
@@ -43,12 +37,14 @@ public class Client {
 	/*
 	 * todo: 下载操作应该使用多线程来实现
 	 */
-	public void download(String ftpPath, String fileName, String localPath) {
+	public void download(String ftpPath, String localPath) {
 		if(ftpClient==null) {
 			return;//未登录则禁止下载
 		}
+		String parentFolderPath = Util.getParentFolderPath(ftpPath);
+		String fileName = Util.getFileName(ftpPath);
 		try {
-			ftpClient.changeWorkingDirectory(ftpPath);//转到目标文件所在的目录
+			ftpClient.changeWorkingDirectory(parentFolderPath);//转到目标文件所在的父目录
 			FTPFile[] ftpFiles = ftpClient.listFiles();//获取目录中的所有文件
 			for(FTPFile f:ftpFiles) {//寻找目标文件
 				if(fileName.equals(f.getName())) {
@@ -56,19 +52,47 @@ public class Client {
 					FileOutputStream fos = new FileOutputStream(dst);
 					ftpClient.retrieveFile(fileName, fos);
 					fos.close();
+					System.out.println("下载成功");
 					break;
 				}
-			}
-			System.out.println("下载成功");
+			}		
 		} catch (Exception e) {
 			System.out.println("下载失败");
 			e.printStackTrace();
 		}
 	}
 	
-
-	public void upload(String ftpPath, String fileName, String localPath) {
+	/*
+	 * todo：上传应该使用多线程来实现
+	 */
+	public void upload(String ftpPath, String localPath) {
+		if(ftpClient==null) {
+			return;//未登录则禁止上传
+		}
+		try {
+			ftpClient.changeWorkingDirectory(ftpPath);//转到目标目录
+			
+			System.out.println("上传成功");
+		} catch (Exception e) {
+			System.out.println("上传失败");
+			e.printStackTrace();
+		}
+	}
+	
+	public void delete(String ftpPath) {
 		
+	}
+	
+	public void rename(String ftpPath, String newName) {
+		if(ftpClient==null) {
+			return;//未登录则禁止重命名
+		}
+	}
+	
+	public void logout() {
+		if(ftpClient==null) {
+			return;//未登录则不必要下线
+		}
 	}
 
 }
