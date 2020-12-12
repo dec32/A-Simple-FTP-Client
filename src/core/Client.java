@@ -6,9 +6,15 @@ import java.io.FileOutputStream;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPReply;
-
+/*
+ * TODO: 这里面的方法都不带返回值(除了getCurFileList)，但是我们需要知道方法是否顺利执行
+ * 一个简单的解决方法是给所有方法加上一个bool返回值，true代表顺利执行，false代表遇到了异常，执行失败
+ * 但这样有一个问题：失败是有很多种原因的（取决于catch到的异常类型）
+ * 所以改写的办法是给所有方法加上throws声明，告知调用者具体的失败类型
+ * （之所以要用大家都讨厌的异常机制是因为不想在这个类里和GUI和json扯上关系）
+ */
 public class Client {
-	private FTPClient ftpClient;
+	private FTPClient ftpClient; 
 	
 	public Client() {
 		
@@ -53,7 +59,7 @@ public class Client {
 					ftpClient.retrieveFile(fileName, fos);
 					fos.close();
 					System.out.println("下载成功");
-					break;
+					return;
 				}
 			}		
 		} catch (Exception e) {
@@ -87,6 +93,18 @@ public class Client {
 		if(ftpClient==null) {
 			return;//未登录则禁止重命名
 		}
+	}
+	
+	public void cd() {
+		
+	}
+	
+	public void getCurFileList() {
+		
+	}
+	
+	public void md() {
+		
 	}
 	
 	public void logout() {
