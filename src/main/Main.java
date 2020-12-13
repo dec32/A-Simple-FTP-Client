@@ -3,12 +3,14 @@ package main;
 import java.util.Scanner;
 
 import core.Client;
-import core.Util;
+import core.JsonParser;
+import net.sf.json.JSONObject;
 
 public class Main {
 
 	public static void main(String[] args) {
-		Client c = new Client();
+		Client client = new Client();
+		JsonParser jasonParser = new JsonParser(client);//Json解释器, 暂时不会使用到
 		Scanner sc = new Scanner(System.in);
 		/*
 		 * 为了方便测试，在本机上开启FTP服务
@@ -18,8 +20,14 @@ public class Main {
 		String username = sc.nextLine();
 		System.out.print("Password: ");
 		String password = sc.nextLine();
-		c.login("localhost", 21, username, password);
-		c.download("/wave.jpg", "D:/ftp download");	
+		try {
+			client.login("localhost", 21, username, password);//登录
+			client.cd("/");//转到根目录
+			client.download("wave.jpg", "D:/ftp download");//下载根目录的wave.jpg文件
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+	
 	}
 
 }
