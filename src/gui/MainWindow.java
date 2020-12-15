@@ -1,6 +1,8 @@
 package gui;
 
 
+import java.awt.TextField;
+import java.io.File;
 import java.io.IOException;
 
 import core.Client;
@@ -11,13 +13,15 @@ import javafx.scene.control.ListView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.DirectoryChooser;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 public class MainWindow extends Stage{
 	private Client client;
 	private Button backButton = new Button("←");
-	private Button uploadButton = new Button("Upload");
-	private Button newFolderButton = new Button("New Folder");
+	private Button uploadButton = new Button("上传");
+	private Button newFolderButton = new Button("新建文件夹");
 	private ListView<FolderViewItem> folderView = new ListView<FolderViewItem>();
 	private String curFtpPath = "/";
 	
@@ -30,6 +34,7 @@ public class MainWindow extends Stage{
 	}
 	
 	private void initUI() {
+		this.setResizable(false);
 		VBox mainLayout = new VBox();
 		HBox buttonPanel = new HBox();
 		
@@ -99,11 +104,12 @@ public class MainWindow extends Stage{
 			if(pathToGo.equals("")) {
 				pathToGo = "/";
 			}
-			System.out.println(pathToGo);
+//			System.out.println(pathToGo);
 			try {
 				client.cd(pathToGo);
 			} catch (IOException e) {
-				System.out.println("back failed");
+				System.out.println("后退失败");
+				return;
 			}
 			curFtpPath = pathToGo;
 			update();
@@ -111,7 +117,12 @@ public class MainWindow extends Stage{
 	}
 	
 	private void on_uploadButtonClicked() {
-		System.out.println("上传");
+		FileChooser fc = new FileChooser();
+		fc.setTitle("选择文件");
+		File f = fc.showOpenDialog(new Stage());
+		String localPath = f.getAbsolutePath();
+		
+		System.out.println("上传文件："+localPath);
 	}
 	
 	private void on_newFolderButtonClicked() {
@@ -119,11 +130,18 @@ public class MainWindow extends Stage{
 	}
 	
 	private void on_fileDoubleClicked(String name) {
+		DirectoryChooser dc = new DirectoryChooser();
+		dc.setTitle("选择保存目录");
+		File file = dc.showDialog(new Stage());
+		if(file == null) {
+			return;
+		}
+		String localPath = file.getAbsolutePath();
 		//这里先暂时把下载路径固定
 		try {
-			client.download(name, "D:/ftp download");
+			client.download(name, localPath);
 		} catch (IOException e1) {
-			System.out.println("download faied");
+			System.out.println("下载失败");
 		}
 	}
 	
@@ -139,7 +157,7 @@ public class MainWindow extends Stage{
 		try {
 			client.cd(pathToGo);
 		} catch (Exception e1) {
-			System.out.println("cd failed");
+			System.out.println("进入文件夹失败");
 		}
 		//更新当前路径
 		curFtpPath = pathToGo;
