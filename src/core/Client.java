@@ -106,7 +106,7 @@ public class Client {
 	 * 给当前目录中指定的文件或文件夹重命名
 	 */
 	public void rename(String name, String newName) {
-
+		System.out.println("把文件"+name+"重命名为"+newName);
 	}
 	
 	/*

@@ -50,7 +50,6 @@ public class MainWindow extends Stage{
 		
 	}
 	private void setListener() {
-		//TODO 设置按钮的监听
 		backButton.setOnAction(e->{
 			on_backButtonClicked();
 		});
@@ -72,6 +71,7 @@ public class MainWindow extends Stage{
 			folderView.getItems().add(new FolderViewItem(s,false));
 		}
 		setOnFolderViewItemsDoubleClicked();
+		setOnContextMenuItemsClicked();
 	}
 	
 	private void setOnFolderViewItemsDoubleClicked() {
@@ -81,16 +81,47 @@ public class MainWindow extends Stage{
 				if(e.getClickCount()==2 && e.getButton() == MouseButton.PRIMARY) {
 					//是文件夹的情况，则执行cd命令
 					if(fvi.isFolder()) {
-						on_folderDoubleClicked(fvi.name);						
+						on_openFolder(fvi.getName());						
 					}else if(!fvi.isFolder()) {
 						//是文件的情况，则下载这个文件，
-						on_fileDoubleClicked(fvi.getName());
+						on_downloadFile(fvi.getName());
 					}									
 				}				
 			});
 		}
 	}
 	
+	//为右键菜单点击设置事件响应
+	private void setOnContextMenuItemsClicked() {
+		for(FolderViewItem fvi:folderView.getItems()) {
+			if(fvi.isFolder()) {
+				fvi.getOpenItem().setOnAction(e->{
+					on_openFolder(fvi.getName());
+				});
+				fvi.getRenameItem().setOnAction(e->{
+					on_renameFolder(fvi.getName());
+				});
+				fvi.getDeleteItem().setOnAction(e->{
+					on_deleteFolder(fvi.getName());
+				});
+			}else {
+				fvi.getDownloadItem().setOnAction(e->{
+					on_downloadFile(fvi.getName());
+				});
+				fvi.getRenameItem().setOnAction(e->{
+					on_renameFile(fvi.getName());
+				});
+				fvi.getDeleteItem().setOnAction(e->{
+					on_deleteFile(fvi.getName());
+				});
+			}
+		}
+	}
+	
+	
+	//事件响应
+	
+	//后退
 	private void on_backButtonClicked() {
 		if(curFtpPath.equals("/")) {
 			return;
@@ -104,7 +135,6 @@ public class MainWindow extends Stage{
 			if(pathToGo.equals("")) {
 				pathToGo = "/";
 			}
-//			System.out.println(pathToGo);
 			try {
 				client.cd(pathToGo);
 			} catch (IOException e) {
@@ -116,20 +146,32 @@ public class MainWindow extends Stage{
 		}
 	}
 	
+	//上传
 	private void on_uploadButtonClicked() {
 		FileChooser fc = new FileChooser();
 		fc.setTitle("选择文件");
 		File f = fc.showOpenDialog(new Stage());
+		if(f==null) {
+			return;
+		}
 		String localPath = f.getAbsolutePath();
+		try {
+			client.upload(localPath);
+		} catch (Exception e) {
+			System.out.println("上传失败");
+			return;
+		}
 		
 		System.out.println("上传文件："+localPath);
 	}
 	
+	//新建文件夹
 	private void on_newFolderButtonClicked() {
 		System.out.println("新建文件夹");
 	}
 	
-	private void on_fileDoubleClicked(String name) {
+	//下载
+	private void on_downloadFile(String name) {
 		DirectoryChooser dc = new DirectoryChooser();
 		dc.setTitle("选择保存目录");
 		File file = dc.showDialog(new Stage());
@@ -145,7 +187,25 @@ public class MainWindow extends Stage{
 		}
 	}
 	
-	private void on_folderDoubleClicked(String name) {
+	//重命名文件
+	private void on_renameFile(String name) {
+		RenameWindow rw = new RenameWindow();
+		//TODO:冻结窗口
+		rw.showAndWait();
+		String newName = rw.getNewName();
+		try {
+			client.rename(name, newName);
+		} catch (Exception e) {
+			System.out.println("重命名失败");
+			return;
+		}
+	}
+	//删除文件
+	private void on_deleteFile(String name) {
+		
+	}
+	//打开文件夹
+	private void on_openFolder(String name) {
 		String pathToGo;
 		//生成新的路径
 		if(curFtpPath.equals("/")) {
@@ -163,4 +223,14 @@ public class MainWindow extends Stage{
 		curFtpPath = pathToGo;
 		update();
 	}
+	//重命名文件夹
+	private void on_renameFolder(String name) {
+		
+	}
+	//删除文件夹
+	private void on_deleteFolder(String name) {
+		
+	}
+	
+	
 }
