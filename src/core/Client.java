@@ -4,29 +4,32 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.SocketException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPReply;
 /*
- * TODO: 这里面的方法都不带返回值(除了cd)，但是我们需要知道方法是否顺利执行
+ * 这里面的方法都不带返回值(除了cd)，但是我们需要知道方法是否顺利执行
  * 一个简单的解决方法是给所有方法加上一个boolean返回值，true代表顺利执行，false代表遇到了异常，执行失败
- * 但这样有一个问题：失败是有很多种原因的（取决于catch到的异常类型）
- * 所以改写的办法是给所有方法加上throws声明，告知调用者具体的失败类型
- * （之所以要用大家都讨厌的异常机制是因为不想在这个类里和GUI和json扯上关系）
+ * 但是这样太低级了, 想要变强就不能用低级的方法
+ * 所以改写的办法是给所有方法加上throws声明，告知调用者具体的异常类型
+ * （之所以要用讨厌的异常机制是因为不想在这个类里和GUI和json扯上关系）
  */
 public class Client {
-	private FTPClient ftpClient; 
-	
+	private FTPClient ftpClient;
+	List<String> folderList = new ArrayList<String>();
+	List<String> fileList = new ArrayList<String>();
 	public Client() {
 		
 	}
 	
-	public void login(String ip, int port, String username, String password) throws SocketException, IOException {
+	public void login(String address, int port, String username, String password) throws SocketException, IOException {
 
 		ftpClient = new FTPClient();
 		ftpClient.setControlEncoding("utf-8"); // 设置编码为utf-8
-		ftpClient.connect(ip, port);// 连接到服务器
+		ftpClient.connect(address, port);// 连接到服务器
 		ftpClient.login(username, password);// 登录
 		int replyCode = ftpClient.getReplyCode(); // 查看登录状态
 		if (!FTPReply.isPositiveCompletion(replyCode)) {
@@ -41,6 +44,18 @@ public class Client {
 	public FTPFile[] cd(String ftpPath) throws IOException {
 		ftpClient.changeWorkingDirectory(ftpPath);
 		FTPFile[] ftpFiles = ftpClient.listFiles();
+		//复制一份到folderList和fileList中
+		folderList.clear();
+		fileList.clear();
+		for(FTPFile f:ftpFiles) {
+			if(f.isDirectory()) {
+				folderList.add(f.getName());
+			}else {
+				fileList.add(f.getName());
+			}
+		}
+
+		
 		return ftpFiles;
 	}
 	
@@ -100,5 +115,19 @@ public class Client {
 	public void logout() {
 
 	}
+
+
+
+
+	
+	//getters & setters
+	public List<String> getFolderList() {
+		return folderList;
+	}
+
+	public List<String> getFileList() {
+		return fileList;
+	}
+
 
 }

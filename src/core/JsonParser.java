@@ -28,17 +28,17 @@ public class JsonParser {
 		if("login".equals(type)) {
 			response = login(jo);
 		//下载
-		}else if("download".equals(type)) {
-			response = download(jo);			
 		}else if("cd".equals(type)) {
-			response = cd(jo);
-		}else if("".equals(type)) {
+			response = cd(jo);			
+		}else if("md".equals(type)) {
 			
-		}else if("".equals(type)) {
+		}else if("download".equals(type)) {
+			response = download(jo);
+		}else if("upload".equals(type)) {
 			
-		}else if("".equals(type)) {
+		}else if("delete".equals(type)) {
 			
-		}else if("".equals(type)) {
+		}else if("rename".equals(type)) {
 			
 		}else {
 			//GUI发来了无法识别的请求
