@@ -59,7 +59,7 @@ public class Client {
 		return ftpFiles;
 	}
 	
-	public void md() {
+	public void md(String name) {
 		
 	}
 	

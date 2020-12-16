@@ -168,6 +168,17 @@ public class MainWindow extends Stage{
 	//新建文件夹
 	private void on_newFolderButtonClicked() {
 		System.out.println("新建文件夹");
+		TypeWindow tw = new TypeWindow("新建文件夹");
+		//TODO:冻结窗口，重命名文件夹和文件应该调用两个方法才对
+		tw.showAndWait();
+		String name = tw.getTypedString();
+		try {
+			client.md(name);
+		} catch (Exception e) {
+			System.out.println("新建文件夹失败");
+			return;
+		}
+		
 	}
 	
 	//下载
@@ -189,10 +200,10 @@ public class MainWindow extends Stage{
 	
 	//重命名文件
 	private void on_renameFile(String name) {
-		RenameWindow rw = new RenameWindow();
-		//TODO:冻结窗口
-		rw.showAndWait();
-		String newName = rw.getNewName();
+		TypeWindow tw = new TypeWindow("重命名");
+		//TODO:冻结窗口，重命名文件夹和文件应该调用两个方法才对
+		tw.showAndWait();
+		String newName = tw.getTypedString();
 		try {
 			client.rename(name, newName);
 		} catch (Exception e) {
@@ -202,7 +213,11 @@ public class MainWindow extends Stage{
 	}
 	//删除文件
 	private void on_deleteFile(String name) {
-		
+		try {
+			client.delete(name);
+		} catch (Exception e) {
+			System.out.println("删除文件夹失败");
+		}
 	}
 	//打开文件夹
 	private void on_openFolder(String name) {
@@ -225,11 +240,24 @@ public class MainWindow extends Stage{
 	}
 	//重命名文件夹
 	private void on_renameFolder(String name) {
-		
+		TypeWindow tw = new TypeWindow("重命名");
+		//TODO:冻结窗口，重命名文件夹和文件应该调用两个方法才对
+		tw.showAndWait();
+		String newName = tw.getTypedString();
+		try {
+			client.rename(name, newName);
+		} catch (Exception e) {
+			System.out.println("重命名失败");
+			return;
+		}
 	}
 	//删除文件夹
 	private void on_deleteFolder(String name) {
-		
+		try {
+			client.delete(name);
+		} catch (Exception e) {
+			System.out.println("删除文件夹失败");
+		}
 	}
 	
 	
