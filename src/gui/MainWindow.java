@@ -59,6 +59,17 @@ public class MainWindow extends Stage{
 		newFolderButton.setOnAction(e->{
 			on_newFolderButtonClicked();
 		});
+		//设置列表的监听
+		folderView.setOnMouseClicked(e->{
+			if(e.getClickCount() == 2 && e.getButton() ==MouseButton.PRIMARY) {
+				FolderViewItem fvi = folderView.getSelectionModel().getSelectedItem();
+				if(fvi.isFolder()) {
+					on_openFolder(fvi.getName());
+				}else {
+					//双击文件，暂时什么都不做
+				}
+			}
+		});
 	}
 	
 	private void update() {
@@ -70,28 +81,12 @@ public class MainWindow extends Stage{
 		for(String s:client.getFileList()) {
 			folderView.getItems().add(new FolderViewItem(s,false));
 		}
-		setOnFolderViewItemsDoubleClicked();
 		setOnContextMenuItemsClicked();
 	}
 	
-	private void setOnFolderViewItemsDoubleClicked() {
-		for(FolderViewItem fvi:folderView.getItems()) {
-			fvi.setOnMouseClicked(e->{
-				//双击左键		
-				if(e.getClickCount()==2 && e.getButton() == MouseButton.PRIMARY) {
-					//是文件夹的情况，则执行cd命令
-					if(fvi.isFolder()) {
-						on_openFolder(fvi.getName());						
-					}else if(!fvi.isFolder()) {
-						//是文件的情况，则下载这个文件，
-						on_downloadFile(fvi.getName());
-					}									
-				}				
-			});
-		}
-	}
 	
 	//为右键菜单点击设置事件响应
+	//TODO（这一部分其实可以写到update里面，利用folderView.setOnContextMenuRequest）
 	private void setOnContextMenuItemsClicked() {
 		for(FolderViewItem fvi:folderView.getItems()) {
 			if(fvi.isFolder()) {
