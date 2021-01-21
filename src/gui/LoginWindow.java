@@ -1,5 +1,6 @@
 package gui;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.SocketException;
 
@@ -74,8 +75,9 @@ public class LoginWindow extends Stage{
 		mainLayout.getChildren().addAll(loginPanel,buttonPanel);
 		mainLayout.setSpacing(15);
 		mainLayout.setPadding(new Insets(25,25,10,25));
-		
-		this.setScene(new Scene(mainLayout));
+		Scene scene = new Scene(mainLayout);
+//		scene.getStylesheets().add("file:///" + new File("css/style.css").getAbsolutePath().replace("\\", "/").replace(" ", "%20"));
+		this.setScene(scene);
 		
 		
 		
