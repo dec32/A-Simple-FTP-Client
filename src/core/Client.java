@@ -59,8 +59,11 @@ public class Client {
 		return ftpFiles;
 	}
 	
-	public void md(String name) {
-		
+	public void md(String name) throws IOException {
+		boolean success = ftpClient.makeDirectory(name); 
+		if(success == false) {
+			throw new IOException();
+		}
 	}
 	
 
