@@ -72,10 +72,54 @@ public class MainWindow extends Stage{
 				}
 			}
 		});
-		folderView.setOnContextMenuRequested(event->{
-			FolderViewItem fvi = folderView.getSelectionModel().getSelectedItem();
-			//当请求列表的右键菜单时，显示被点击的列表项的右键菜单，并且设置监听事件
-			fvi.getContextMenu().show(folderView,event.getScreenX(),event.getScreenY());
+//		folderView.setOnContextMenuRequested(event->{
+//			FolderViewItem fvi = folderView.getSelectionModel().getSelectedItem();
+//			//当请求列表的右键菜单时，显示被点击的列表项的右键菜单，并且设置监听事件		
+//			if(fvi.isFolder()) {
+//				fvi.getOpenItem().setOnAction(e->{
+//					on_openFolder(fvi.getName());
+//					System.out.println("打开");
+//				});
+//				fvi.getRenameItem().setOnAction(e->{
+//					on_renameFolder(fvi.getName());
+//				});
+//				fvi.getDeleteItem().setOnAction(e->{
+//					on_deleteFolder(fvi.getName());
+//				});
+//			}else {
+//				fvi.getDownloadItem().setOnAction(e->{
+//					on_downloadFile(fvi.getName());
+//					System.out.println("下载");
+//				});
+//				fvi.getRenameItem().setOnAction(e->{
+//					on_renameFile(fvi.getName());
+//				});
+//				fvi.getDeleteItem().setOnAction(e->{
+//					on_deleteFile(fvi.getName());
+//				});
+//			}
+//			fvi.getContextMenu().show(folderView,event.getScreenX(),event.getScreenY());
+//			event.consume();
+//		});
+	}
+	
+	private void update() {
+		this.setTitle(curFtpPath);
+		folderView.getItems().clear();
+		for(String s:client.getFolderList()) {
+			folderView.getItems().add(new FolderViewItem(s,true));
+		}
+		for(String s:client.getFileList()) {
+			folderView.getItems().add(new FolderViewItem(s,false));
+		}
+		setOnContextMenuItemsClicked();
+	}
+	
+	
+	//为右键菜单点击设置事件响应
+	//TODO（这一部分其实可以写到update里面，利用folderView.setOnContextMenuRequest）
+	private void setOnContextMenuItemsClicked() {
+		for(FolderViewItem fvi:folderView.getItems()) {
 			if(fvi.isFolder()) {
 				fvi.getOpenItem().setOnAction(e->{
 					on_openFolder(fvi.getName());
@@ -97,49 +141,7 @@ public class MainWindow extends Stage{
 					on_deleteFile(fvi.getName());
 				});
 			}
-			event.consume();
-		});
-	}
-	
-	private void update() {
-		this.setTitle(curFtpPath);
-		folderView.getItems().clear();
-		for(String s:client.getFolderList()) {
-			folderView.getItems().add(new FolderViewItem(s,true));
 		}
-		for(String s:client.getFileList()) {
-			folderView.getItems().add(new FolderViewItem(s,false));
-		}
-		setOnContextMenuItemsClicked();
-	}
-	
-	
-	//为右键菜单点击设置事件响应
-	//TODO（这一部分其实可以写到update里面，利用folderView.setOnContextMenuRequest）
-	private void setOnContextMenuItemsClicked() {
-//		for(FolderViewItem fvi:folderView.getItems()) {
-//			if(fvi.isFolder()) {
-//				fvi.getOpenItem().setOnAction(e->{
-//					on_openFolder(fvi.getName());
-//				});
-//				fvi.getRenameItem().setOnAction(e->{
-//					on_renameFolder(fvi.getName());
-//				});
-//				fvi.getDeleteItem().setOnAction(e->{
-//					on_deleteFolder(fvi.getName());
-//				});
-//			}else {
-//				fvi.getDownloadItem().setOnAction(e->{
-//					on_downloadFile(fvi.getName());
-//				});
-//				fvi.getRenameItem().setOnAction(e->{
-//					on_renameFile(fvi.getName());
-//				});
-//				fvi.getDeleteItem().setOnAction(e->{
-//					on_deleteFile(fvi.getName());
-//				});
-//			}
-//		}
 	}
 	
 	

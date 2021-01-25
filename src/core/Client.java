@@ -66,7 +66,7 @@ public class Client {
 
 	/*
 	 * 把指定的本地文件上传到当前目录
-	 * TODO: 下载操作应该使用多线程来实现
+	 * TODO: 下载操作应该使用多线程来实现（GUI调用此方法时新建一个线程）
 	 */
 	public void download(String fileName, String localPath) throws IOException {
 
@@ -74,9 +74,9 @@ public class Client {
 		for (FTPFile f : ftpFiles) {// 寻找目标文件
 			if (fileName.equals(f.getName())) {
 				File dst = new File(localPath + "/" + fileName);// destination 目标位置
-				FileOutputStream fos = new FileOutputStream(dst);
+				FileOutputStream fos = new FileOutputStream(dst);	
 				ftpClient.retrieveFile(fileName, fos);
-				fos.close();
+				fos.close();		
 				System.out.println("下载成功");
 				return;
 			}
@@ -86,7 +86,7 @@ public class Client {
 	
 	/*
 	 * 把指定的本地文件上传到当前目录
-	 * TODO: 上传应该使用多线程来实现
+	 * TODO: 上传应该使用多线程来实现（GUI调用此方法时新建一个线程）
 	 */
 	public void upload(String localPath){
 					
