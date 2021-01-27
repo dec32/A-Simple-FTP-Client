@@ -23,7 +23,6 @@ public class MainWindow extends Stage{
 	private Button uploadButton = new Button("上传");
 	private Button newFolderButton = new Button("新建文件夹");
 	private ListView<FolderViewItem> folderView = new ListView<FolderViewItem>();
-	private String curFtpPath = "/";
 
 
 	public MainWindow(Client client) {
@@ -36,6 +35,7 @@ public class MainWindow extends Stage{
 
 	private void initUI() { //设置主面板
 		this.setResizable(false);
+		this.setTitle("FTP 客户端");
 		VBox mainLayout = new VBox();
 		HBox buttonPanel = new HBox();
 
@@ -106,8 +106,6 @@ public class MainWindow extends Stage{
 
 	//刷新文件列表
 	private void update() {
-		this.setTitle(curFtpPath);  //当前目录做为标题
-
 		folderView.getItems().clear();  //清空文件列表
 		//System.out.println("client.getFolderList().size(): "+ client.getFolderList().size());
 		for(String s:client.getFolderList()) {
@@ -127,16 +125,16 @@ public class MainWindow extends Stage{
 		for(FolderViewItem fvi:folderView.getItems()) { //对于文件列表中的所有文件，文件夹的监听
 			if(fvi.isFolder()) {
 				fvi.getOpenItem().setOnAction(e->{    //文件夹打开的监听操作
-					on_openFolder(fvi.getName());
+//					on_openFolder(fvi.getName());
 				});
 				fvi.getRenameItem().setOnAction(e->{  //文件夹重命名的监听
 					on_renameFolder(fvi.getName());
-					on_openFolder(" ");   //刷新当前页面
+//					on_openFolder(" ");   //刷新当前页面
 				});
 				fvi.getDeleteItem().setOnAction(e->{  //文件夹删除的监听
 					on_deleteFolder(fvi.getName());
 
-					on_openFolder(" ");   //刷新当前页面
+//					on_openFolder(" ");   //刷新当前页面
 
 				});
 			}else {
@@ -146,11 +144,11 @@ public class MainWindow extends Stage{
 				});
 				fvi.getRenameItem().setOnAction(e->{   //文件重命名的监听
 					on_renameFile(fvi.getName());
-					on_openFolder(" ");   //刷新当前页面
+//					on_openFolder(" ");   //刷新当前页面
 				});
 				fvi.getDeleteItem().setOnAction(e->{   //文件删除的监听
 					on_deleteFile(fvi.getName());  //这里的fvi.getname只是一个相对路径，不是绝对路径
-					on_openFolder(" ");   //刷新当前页面
+//					on_openFolder(" ");   //刷新当前页面
 				});
 			}
 		}
@@ -163,26 +161,13 @@ public class MainWindow extends Stage{
 
 	//后退
 	private void on_backButtonClicked() {
-		if(curFtpPath.equals("/")) {  //如果就在服务器根目录下，直接返回
-			return;
-		}else {
-			String splited[] = curFtpPath.split("/");
-			String pathToGo = "";
-			for (int i = 1; i < splited.length-1; i++) {
-				pathToGo+="/";
-				pathToGo+=splited[i];
-			}
-			if(pathToGo.equals("")) {
-				pathToGo = "/";
-			}
-			try {
-				client.cd(pathToGo);
-			} catch (IOException e) {
-				System.out.println("后退失败");
-				return;
-			}
-			curFtpPath = pathToGo;
+		try {
+			System.out.println("后退按钮被点击");
+			client.back();
 			update();
+		} catch (Exception e) {
+			System.out.println("后退失败");
+			return;
 		}
 	}
 
@@ -247,6 +232,7 @@ public class MainWindow extends Stage{
 		String newName = tw.getTypedString();
 		try {
 			client.rename(name, newName);
+			update();
 		} catch (Exception e) {
 			System.out.println("重命名失败");
 			return;
@@ -255,36 +241,44 @@ public class MainWindow extends Stage{
 	//删除文件
 	private void on_deleteFile(String name) {
 		try {
-			client.delete(name,curFtpPath);
+			client.delete(name);
+			update();
 		} catch (Exception e) {
 			System.out.println("删除文件夹失败");
 		}
 	}
 	//打开文件夹
 	private void on_openFolder(String name) {
-		String pathToGo;
-		//生成新的路径
-
-
-		if(curFtpPath.equals("/")) {
-			pathToGo = curFtpPath+name;
-		}
-		else {
-			pathToGo = curFtpPath+"/"+name;
-		}
-		if(name.equals(" ")){
-//			System.out.println("yes!");
-			pathToGo = curFtpPath;
-		}
-		//cd
+//		String pathToGo;
+//		//生成新的路径
+//
+//
+//		if(curFtpPath.equals("/")) {
+//			pathToGo = curFtpPath+name;
+//		}
+//		else {
+//			pathToGo = curFtpPath+"/"+name;
+//		}
+//		if(name.equals(" ")){
+////			System.out.println("yes!");
+//			pathToGo = curFtpPath;
+//		}
+//		//cd
+//		try {
+//			client.cd(pathToGo);
+//		} catch (Exception e1) {
+//			System.out.println("进入文件夹失败");
+//		}
+//		//更新当前路径
+//		curFtpPath = pathToGo;
+		
 		try {
-			client.cd(pathToGo);
-		} catch (Exception e1) {
-			System.out.println("进入文件夹失败");
+			client.cd(name);
+			update();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		//更新当前路径
-		curFtpPath = pathToGo;
-		update();
 	}
 	//重命名文件夹
 	private void on_renameFolder(String name) {
@@ -302,7 +296,7 @@ public class MainWindow extends Stage{
 	//删除文件夹
 	private void on_deleteFolder(String name) {
 		try {
-			client.delete(name,curFtpPath);
+			client.delete(name);
 		} catch (Exception e) {
 			System.out.println("删除文件夹失败");
 		}
