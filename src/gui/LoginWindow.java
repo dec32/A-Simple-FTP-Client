@@ -22,7 +22,7 @@ public class LoginWindow extends Stage{
 	private Client client;
 	
 	private Label usernameLabel = new Label("用户名: ");
-	private TextField usernameField = new TextField("guest");
+	private TextField usernameField = new TextField("csn");
 	private Label passwordLabel = new Label("密码: ");
 	private PasswordField passwordField = new PasswordField();
 	private Label addressLabel = new Label("地址: ");

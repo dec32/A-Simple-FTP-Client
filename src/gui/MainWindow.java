@@ -24,49 +24,50 @@ public class MainWindow extends Stage{
 	private Button newFolderButton = new Button("新建文件夹");
 	private ListView<FolderViewItem> folderView = new ListView<FolderViewItem>();
 	private String curFtpPath = "/";
-	
+
+
 	public MainWindow(Client client) {
 		this.client = client;
 		initUI();
 		update();
 		setListener();
-		
+
 	}
-	
-	private void initUI() {
+
+	private void initUI() { //设置主面板
 		this.setResizable(false);
 		VBox mainLayout = new VBox();
 		HBox buttonPanel = new HBox();
-		
+
 		//三个按钮
 		buttonPanel.getChildren().addAll(backButton, uploadButton, newFolderButton);
 		buttonPanel.setSpacing(10);
-		
+
 		//主布局
-		mainLayout.getChildren().addAll(buttonPanel,folderView);
+		mainLayout.getChildren().addAll(buttonPanel,folderView); //此时的folderview是空值，需要update后才能看到文件列表
 		mainLayout.setSpacing(10);
 		mainLayout.setPadding(new Insets(10));
 		Scene scene = new Scene(mainLayout);
 //		scene.getStylesheets().add("file:///" + new File("css/style.css").getAbsolutePath().replace("\\", "/").replace(" ", "%20"));
 		this.setScene(scene);
-		
+
 	}
 	private void setListener() {
-		backButton.setOnAction(e->{
+		backButton.setOnAction(e->{  //回退的监听
 			on_backButtonClicked();
 		});
-		uploadButton.setOnAction(e->{
+		uploadButton.setOnAction(e->{ //上传的监听
 			on_uploadButtonClicked();
 		});
-		newFolderButton.setOnAction(e->{
+		newFolderButton.setOnAction(e->{ //新建文件夹的监听
 			on_newFolderButtonClicked();
 		});
 		//设置列表的监听
-		folderView.setOnMouseClicked(e->{
-			if(e.getClickCount() == 2 && e.getButton() ==MouseButton.PRIMARY) {
+		folderView.setOnMouseClicked(e->{ //文件列表的监听
+			if(e.getClickCount() == 2 && e.getButton() ==MouseButton.PRIMARY) { //监听到对文件列表中的某个元素左键双击
 				FolderViewItem fvi = folderView.getSelectionModel().getSelectedItem();
-				if(fvi.isFolder()) {
-					on_openFolder(fvi.getName());
+				if(fvi.isFolder()) { //如果是文件夹
+					on_openFolder(fvi.getName());  //打开文件夹
 				}else {
 					//双击文件，暂时什么都不做
 				}
@@ -74,7 +75,7 @@ public class MainWindow extends Stage{
 		});
 //		folderView.setOnContextMenuRequested(event->{
 //			FolderViewItem fvi = folderView.getSelectionModel().getSelectedItem();
-//			//当请求列表的右键菜单时，显示被点击的列表项的右键菜单，并且设置监听事件		
+//			//当请求列表的右键菜单时，显示被点击的列表项的右键菜单，并且设置监听事件
 //			if(fvi.isFolder()) {
 //				fvi.getOpenItem().setOnAction(e->{
 //					on_openFolder(fvi.getName());
@@ -102,54 +103,71 @@ public class MainWindow extends Stage{
 //			event.consume();
 //		});
 	}
-	
+
+	//刷新文件列表
 	private void update() {
-		this.setTitle(curFtpPath);
-		folderView.getItems().clear();
+		this.setTitle(curFtpPath);  //当前目录做为标题
+
+		folderView.getItems().clear();  //清空文件列表
+		//System.out.println("client.getFolderList().size(): "+ client.getFolderList().size());
 		for(String s:client.getFolderList()) {
-			folderView.getItems().add(new FolderViewItem(s,true));
+			folderView.getItems().add(new FolderViewItem(s,true)); //先将文件夹图标放上去
 		}
 		for(String s:client.getFileList()) {
-			folderView.getItems().add(new FolderViewItem(s,false));
+			folderView.getItems().add(new FolderViewItem(s,false)); //将文件图标放上去
 		}
-		setOnContextMenuItemsClicked();
+		setOnContextMenuItemsClicked(); //设置鼠标监听事件
+//        update();
 	}
-	
-	
+
+
 	//为右键菜单点击设置事件响应
 	//TODO（这一部分其实可以写到update里面，利用folderView.setOnContextMenuRequest）
 	private void setOnContextMenuItemsClicked() {
-		for(FolderViewItem fvi:folderView.getItems()) {
+		for(FolderViewItem fvi:folderView.getItems()) { //对于文件列表中的所有文件，文件夹的监听
 			if(fvi.isFolder()) {
-				fvi.getOpenItem().setOnAction(e->{
+				fvi.getOpenItem().setOnAction(e->{    //文件夹打开的监听操作
 					on_openFolder(fvi.getName());
 				});
-				fvi.getRenameItem().setOnAction(e->{
+				fvi.getRenameItem().setOnAction(e->{  //文件夹重命名的监听
 					on_renameFolder(fvi.getName());
+					on_openFolder(" ");   //刷新当前页面
 				});
-				fvi.getDeleteItem().setOnAction(e->{
+				fvi.getDeleteItem().setOnAction(e->{  //文件夹删除的监听
 					on_deleteFolder(fvi.getName());
+
+					on_openFolder(" ");   //刷新当前页面
+
 				});
 			}else {
-				fvi.getDownloadItem().setOnAction(e->{
+				fvi.getDownloadItem().setOnAction(e->{ //文件下载的监听
 					on_downloadFile(fvi.getName());
+
 				});
-				fvi.getRenameItem().setOnAction(e->{
+				fvi.getRenameItem().setOnAction(e->{   //文件重命名的监听
 					on_renameFile(fvi.getName());
+					on_openFolder(" ");   //刷新当前页面
 				});
-				fvi.getDeleteItem().setOnAction(e->{
-					on_deleteFile(fvi.getName());
+				fvi.getDeleteItem().setOnAction(e->{   //文件删除的监听
+					System.out.println(curFtpPath);
+					System.out.println(fvi.getName());
+					on_deleteFile(fvi.getName());  //这里的fvi.getname只是一个相对路径，不是绝对路径
+					System.out.println("delete over!");
+					on_openFolder(" ");   //刷新当前页面
+                    System.out.println("open again!");
 				});
 			}
 		}
+
+
 	}
-	
-	
+
+
 	//事件响应
-	
+
 	//后退
 	private void on_backButtonClicked() {
-		if(curFtpPath.equals("/")) {
+		if(curFtpPath.equals("/")) {  //如果就在服务器根目录下，直接返回
 			return;
 		}else {
 			String splited[] = curFtpPath.split("/");
@@ -171,7 +189,7 @@ public class MainWindow extends Stage{
 			update();
 		}
 	}
-	
+
 	//上传
 	private void on_uploadButtonClicked() {
 		FileChooser fc = new FileChooser();
@@ -187,10 +205,11 @@ public class MainWindow extends Stage{
 			System.out.println("上传失败");
 			return;
 		}
-		
+
 		System.out.println("上传文件："+localPath);
+		on_openFolder(" ");   //刷新当前页面
 	}
-	
+
 	//新建文件夹
 	private void on_newFolderButtonClicked() {
 		System.out.println("新建文件夹");
@@ -204,9 +223,9 @@ public class MainWindow extends Stage{
 			System.out.println("新建文件夹失败");
 			return;
 		}
-		
+
 	}
-	
+
 	//下载
 	private void on_downloadFile(String name) {
 		DirectoryChooser dc = new DirectoryChooser();
@@ -223,7 +242,7 @@ public class MainWindow extends Stage{
 			System.out.println("下载失败");
 		}
 	}
-	
+
 	//重命名文件
 	private void on_renameFile(String name) {
 		TypeWindow tw = new TypeWindow("重命名");
@@ -240,7 +259,7 @@ public class MainWindow extends Stage{
 	//删除文件
 	private void on_deleteFile(String name) {
 		try {
-			client.delete(name);
+			client.delete(name,curFtpPath);
 		} catch (Exception e) {
 			System.out.println("删除文件夹失败");
 		}
@@ -249,10 +268,17 @@ public class MainWindow extends Stage{
 	private void on_openFolder(String name) {
 		String pathToGo;
 		//生成新的路径
+
+
 		if(curFtpPath.equals("/")) {
 			pathToGo = curFtpPath+name;
-		}else {
+		}
+		else {
 			pathToGo = curFtpPath+"/"+name;
+		}
+		if(name.equals(" ")){
+			System.out.println("yes!");
+			pathToGo = curFtpPath;
 		}
 		//cd
 		try {
@@ -280,11 +306,11 @@ public class MainWindow extends Stage{
 	//删除文件夹
 	private void on_deleteFolder(String name) {
 		try {
-			client.delete(name);
+			client.delete(name,curFtpPath);
 		} catch (Exception e) {
 			System.out.println("删除文件夹失败");
 		}
 	}
-	
-	
+
+
 }
