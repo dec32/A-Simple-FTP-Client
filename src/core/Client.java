@@ -110,17 +110,17 @@ public class Client {
 	 * 删除当前目录中指定的文件或文件夹
 	 */
 	public void delete(String name,String curpath) throws IOException {
-       System.out.println("curpath: "+curpath+"  delete: "+name);
+//       System.out.println("curpath: "+curpath+"  delete: "+name);
 		//删除掉指定文件
 		FTPFile[] ftpFiles = ftpClient.listFiles();
 		for(FTPFile f : ftpFiles){
 			if(name.equals(f.getName())){
 				if(f.isFile()){ //如果是文件，直接删除
-					System.out.println("isfile");
+//					System.out.println("isfile");
 					ftpClient.deleteFile(name);
 				}
 				else if(f.isDirectory()){ //如果是文件夹，先删除文件夹中的内容，再删除文件夹
-					System.out.println("isDirectory");
+//					System.out.println("isDirectory");
 				    /*
 					 * 由于ftpClient只能删除空文件夹，不能删除带有文件的文件夹
 					 * -->所以需要先将文件夹中的文件删除，再删除掉文件夹
@@ -128,16 +128,29 @@ public class Client {
 					String new_path;
 					if(curpath.equals("/"))  new_path = curpath+name;
 					else  new_path = curpath + "/" +name;
-                    
+
 					removeAllFiles(new_path);
-				
+
 					//删除掉该文件夹，该文件夹此时为空
 					ftpClient.changeWorkingDirectory(curpath);
 					ftpClient.removeDirectory(name);
+					
 				}
 
 			}
 		}
+		
+		boolean isExist = false;
+		ftpFiles = ftpClient.listFiles();
+		for(FTPFile f: ftpFiles){
+			if(name.equals(f.getName())){
+				isExist = true;
+				break;
+			}
+		}
+		if(isExist) System.out.println("删除失败！");
+		else System.out.println("删除成功！");
+		
 
 
 	}
@@ -147,16 +160,17 @@ public class Client {
 //		System.out.println("curpath name : "+ curpath);
 		ftpClient.changeWorkingDirectory(curpath); //把当前路径切换到要删除的文件夹下
 		FTPFile[] ftpFiles = ftpClient.listFiles();
-		
+
 		if(ftpFiles.length==0){ //如果待删文件夹下为空
-			
+
 			String fatherDire = curpath.substring(0, curpath.lastIndexOf("/")); //获取父目录
-			System.out.println("len 0 fatherDire: "+fatherDire);
-			System.out.println("delete curpath" + curpath);
+//			System.out.println("len 0 fatherDire: "+fatherDire);
+//			System.out.println("delete curpath" + curpath);
 			ftpClient.changeWorkingDirectory(fatherDire);
-			System.out.println(ftpClient.removeDirectory(curpath) ); //是否成功删除
+//			System.out.println(ftpClient.removeDirectory(curpath) ); //是否成功删除
+			ftpClient.removeDirectory(curpath) ;
 		}
-		
+
 		if(ftpFiles.length>0 )
 		for(FTPFile f : ftpFiles){
 			if(f.isFile()){ //是文件，直接删除
@@ -169,20 +183,15 @@ public class Client {
 
 				//切换到父目录，删除文件夹
 				String fatherDire = subDirectory.substring(0, subDirectory.lastIndexOf("/"));
-				System.out.println("len >0 fatherDire: "+fatherDire);
-				System.out.println("len >0 curpath "+curpath);
+//				System.out.println("len >0 fatherDire: "+fatherDire);
+//				System.out.println("len >0 curpath "+curpath);
 				ftpClient.changeWorkingDirectory(fatherDire);
-				boolean flag = ftpClient.removeDirectory(curpath);
-				System.out.println("remove directory : "+ flag);
+				ftpClient.removeDirectory(curpath);
+//				boolean flag = ftpClient.removeDirectory(curpath);
+//				System.out.println("remove directory : "+ flag);
 			}
 		}
-	    //切换到父目录
-//		ftpClient.changeWorkingDirectory(name.substring(0, name.lastIndexOf("/")));
-//		ftpClient.removeDirectory(name);
-
-
-
-
+	   
 	}
 
 
@@ -198,14 +207,21 @@ public class Client {
 			e.printStackTrace();
 		}
 		return ;
-		
+
 	}
 
 	/*
 	 * 下线
 	 */
 	public void logout() {
-
+		try {
+			if(ftpClient.isConnected())
+			   ftpClient.logout();
+			   System.out.println("退出登录成功！");
+			  } catch (IOException e) {
+			   // TODO Auto-generated catch block
+			   System.out.println("退出登录失败！");
+			  }
 	}
 
 

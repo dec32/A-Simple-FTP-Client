@@ -149,12 +149,8 @@ public class MainWindow extends Stage{
 					on_openFolder(" ");   //刷新当前页面
 				});
 				fvi.getDeleteItem().setOnAction(e->{   //文件删除的监听
-					System.out.println(curFtpPath);
-					System.out.println(fvi.getName());
 					on_deleteFile(fvi.getName());  //这里的fvi.getname只是一个相对路径，不是绝对路径
-					System.out.println("delete over!");
 					on_openFolder(" ");   //刷新当前页面
-                    System.out.println("open again!");
 				});
 			}
 		}
@@ -277,7 +273,7 @@ public class MainWindow extends Stage{
 			pathToGo = curFtpPath+"/"+name;
 		}
 		if(name.equals(" ")){
-			System.out.println("yes!");
+//			System.out.println("yes!");
 			pathToGo = curFtpPath;
 		}
 		//cd
