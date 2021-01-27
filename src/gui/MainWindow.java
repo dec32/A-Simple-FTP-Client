@@ -106,6 +106,7 @@ public class MainWindow extends Stage{
 
 	//刷新文件列表
 	private void update() {
+		System.out.println("update method");
 		folderView.getItems().clear();  //清空文件列表
 		//System.out.println("client.getFolderList().size(): "+ client.getFolderList().size());
 		for(String s:client.getFolderList()) {
@@ -115,7 +116,6 @@ public class MainWindow extends Stage{
 			folderView.getItems().add(new FolderViewItem(s,false)); //将文件图标放上去
 		}
 		setOnContextMenuItemsClicked(); //设置鼠标监听事件
-//        update();
 	}
 
 
@@ -125,14 +125,14 @@ public class MainWindow extends Stage{
 		for(FolderViewItem fvi:folderView.getItems()) { //对于文件列表中的所有文件，文件夹的监听
 			if(fvi.isFolder()) {
 				fvi.getOpenItem().setOnAction(e->{    //文件夹打开的监听操作
-//					on_openFolder(fvi.getName());
+					on_openFolder(fvi.getName());
 				});
 				fvi.getRenameItem().setOnAction(e->{  //文件夹重命名的监听
-					on_renameFolder(fvi.getName());
+					on_rename(fvi.getName());
 //					on_openFolder(" ");   //刷新当前页面
 				});
 				fvi.getDeleteItem().setOnAction(e->{  //文件夹删除的监听
-					on_deleteFolder(fvi.getName());
+					on_delete(fvi.getName());
 
 //					on_openFolder(" ");   //刷新当前页面
 
@@ -143,11 +143,11 @@ public class MainWindow extends Stage{
 
 				});
 				fvi.getRenameItem().setOnAction(e->{   //文件重命名的监听
-					on_renameFile(fvi.getName());
+					on_rename(fvi.getName());
 //					on_openFolder(" ");   //刷新当前页面
 				});
 				fvi.getDeleteItem().setOnAction(e->{   //文件删除的监听
-					on_deleteFile(fvi.getName());  //这里的fvi.getname只是一个相对路径，不是绝对路径
+					on_delete(fvi.getName());  //这里的fvi.getname只是一个相对路径，不是绝对路径
 //					on_openFolder(" ");   //刷新当前页面
 				});
 			}
@@ -182,13 +182,11 @@ public class MainWindow extends Stage{
 		String localPath = f.getAbsolutePath();
 		try {
 			client.upload(localPath);
+			update();
+			System.out.println("上传文件："+localPath);
 		} catch (Exception e) {
 			System.out.println("上传失败");
-			return;
-		}
-
-		System.out.println("上传文件："+localPath);
-		on_openFolder(" ");   //刷新当前页面
+		}		
 	}
 
 	//新建文件夹
@@ -200,10 +198,11 @@ public class MainWindow extends Stage{
 		String name = tw.getTypedString();
 		try {
 			client.md(name);
+			update();
 		} catch (Exception e) {
 			System.out.println("新建文件夹失败");
-			return;
 		}
+		
 
 	}
 
@@ -224,22 +223,8 @@ public class MainWindow extends Stage{
 		}
 	}
 
-	//重命名文件
-	private void on_renameFile(String name) {
-		TypeWindow tw = new TypeWindow("重命名");
-		//TODO:冻结窗口，重命名文件夹和文件应该调用两个方法才对
-		tw.showAndWait();
-		String newName = tw.getTypedString();
-		try {
-			client.rename(name, newName);
-			update();
-		} catch (Exception e) {
-			System.out.println("重命名失败");
-			return;
-		}
-	}
 	//删除文件
-	private void on_deleteFile(String name) {
+	private void on_delete(String name) {
 		try {
 			client.delete(name);
 			update();
@@ -248,30 +233,7 @@ public class MainWindow extends Stage{
 		}
 	}
 	//打开文件夹
-	private void on_openFolder(String name) {
-//		String pathToGo;
-//		//生成新的路径
-//
-//
-//		if(curFtpPath.equals("/")) {
-//			pathToGo = curFtpPath+name;
-//		}
-//		else {
-//			pathToGo = curFtpPath+"/"+name;
-//		}
-//		if(name.equals(" ")){
-////			System.out.println("yes!");
-//			pathToGo = curFtpPath;
-//		}
-//		//cd
-//		try {
-//			client.cd(pathToGo);
-//		} catch (Exception e1) {
-//			System.out.println("进入文件夹失败");
-//		}
-//		//更新当前路径
-//		curFtpPath = pathToGo;
-		
+	private void on_openFolder(String name) {	
 		try {
 			client.cd(name);
 			update();
@@ -281,24 +243,16 @@ public class MainWindow extends Stage{
 		}
 	}
 	//重命名文件夹
-	private void on_renameFolder(String name) {
+	private void on_rename(String name) {
 		TypeWindow tw = new TypeWindow("重命名");
 		//TODO:冻结窗口，重命名文件夹和文件应该调用两个方法才对
 		tw.showAndWait();
 		String newName = tw.getTypedString();
 		try {
 			client.rename(name, newName);
+			update();
 		} catch (Exception e) {
 			System.out.println("重命名失败");
-			return;
-		}
-	}
-	//删除文件夹
-	private void on_deleteFolder(String name) {
-		try {
-			client.delete(name);
-		} catch (Exception e) {
-			System.out.println("删除文件夹失败");
 		}
 	}
 

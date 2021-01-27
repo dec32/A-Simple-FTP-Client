@@ -43,21 +43,9 @@ public class Client {
 
 
 	//转到指定的目录下(只支持绝对路径, 后续考虑支持相对路径)
-	public FTPFile[] cd(String ftpPath) throws IOException {
+	public void cd(String ftpPath) throws IOException {
 		ftpClient.changeWorkingDirectory(ftpPath);
 		FTPFile[] ftpFiles = ftpClient.listFiles();
-		//复制一份到folderList和fileList中
-		folderList.clear();
-		fileList.clear();
-		for(FTPFile f:ftpFiles) {
-			if(f.isDirectory()) {
-				folderList.add(f.getName());
-			}else {
-				fileList.add(f.getName());
-			}
-		}
-
-		return ftpFiles;
 	}
 
 	public void md(String name) throws IOException {
@@ -170,17 +158,6 @@ public class Client {
 	
 	public void back() throws IOException {
 		ftpClient.changeToParentDirectory();
-		FTPFile[] ftpFiles = ftpClient.listFiles();
-		//复制一份到folderList和fileList中
-		folderList.clear();
-		fileList.clear();
-		for(FTPFile f:ftpFiles) {
-			if(f.isDirectory()) {
-				folderList.add(f.getName());
-			}else {
-				fileList.add(f.getName());
-			}
-		}
 	}
 
 
@@ -214,15 +191,36 @@ public class Client {
 	}
 
 
-
-
-
 	//getters & setters
 	public List<String> getFolderList() {
+		FTPFile[] ftpFiles;
+		try {
+			ftpFiles = ftpClient.listFiles();
+		} catch (IOException e) {
+			return null;
+		}
+		folderList.clear();
+		for(FTPFile f:ftpFiles) {
+			if(f.isDirectory()) {
+				folderList.add(f.getName());
+			}
+		}
 		return folderList;
 	}
 
 	public List<String> getFileList() {
+		FTPFile[] ftpFiles;
+		try {
+			ftpFiles = ftpClient.listFiles();
+		} catch (IOException e) {
+			return null;
+		}
+		fileList.clear();
+		for(FTPFile f:ftpFiles) {
+			if(f.isFile()) {
+				fileList.add(f.getName());
+			}
+		}
 		return fileList;
 	}
 

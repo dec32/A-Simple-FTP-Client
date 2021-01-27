@@ -3,7 +3,6 @@ package main;
 import java.util.Scanner;
 
 import core.Client;
-import core.JsonParser;
 import gui.LoginWindow;
 import gui.MainWindow;
 import javafx.application.Application;
